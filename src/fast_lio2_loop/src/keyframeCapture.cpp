@@ -1,4 +1,3 @@
-// Obtain pose and point cloud keyframes to store during flight
 #include <ros/ros.h>
 #include "fast_lio_sub.hpp"
 

@@ -1,9 +1,15 @@
-#pragma once 
+#pragma once
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Pose.h>
+
+struct KeyFrame {
+  geometry_msgs::Pose      pose;
+  sensor_msgs::PointCloud2 cloud;
+  ros::Time                stamp;
+};
 
 class FastLioPoll {
 public:
@@ -16,13 +22,23 @@ private:
   void checkKeyFrameTrigger();
   void createKeyFrame();
 
+  double computeTranslation(const geometry_msgs::Pose& a,
+                            const geometry_msgs::Pose& b) const;
+
   ros::NodeHandle nh_, pnh_;
   ros::Subscriber odom_sub_, cloud_sub_;
+
+  // Optional: publish keyframe pose/cloud for debugging
+  ros::Publisher keyf_pose_pub_;
+  ros::Publisher keyf_cloud_pub_;
+
   std::string odom_topic_, cloud_topic_;
 
   nav_msgs::Odometry       latest_odom_;
   sensor_msgs::PointCloud2 latest_cloud_;
   geometry_msgs::Pose      latest_pose_;
+  bool                     has_odom_  = false;
+  bool                     has_cloud_ = false;
 
   bool               has_last_keyf_ = false;
   geometry_msgs::Pose last_keyf_pose_;
@@ -31,4 +47,7 @@ private:
   double keyf_rotation_thresh_;      // reserved for later, not used yet
 
   int keyf_count_ = 0;               // number of keyframes created
+
+  // Store keyframes in memory
+  std::vector<KeyFrame> keyframes_;
 };
